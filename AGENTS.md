@@ -3,6 +3,7 @@ This repository contains an ebpf based sampling profile. It is designed to colle
 
 # Important libraries
 - libbpf: A library for loading and interacting with eBPF programs (https://github.com/libbpf/libbpf).
+- argparse: A library for parsing command-line arguments in C++ (https://github.com/p-ranav/argparse).
 
 # Build and Test Commands
 To build and test the project, use the following commands:
@@ -10,7 +11,7 @@ To build and test the project, use the following commands:
 - Test: `make test`
 
 # Code Style Guidelines
-The main code is written in C. Please follow these style guidelines:
+The main code is written in C++. Please follow these style guidelines:
 - `clang-format` is used for code formatting.
 
 # Testing Instructions
