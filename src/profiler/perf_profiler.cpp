@@ -23,6 +23,10 @@
 #include <iostream>
 #include <string>
 
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <unistd.h>
+
 #include "perf_profiler_types.h"
 
 //-----------------------------------------------------------------------------
@@ -135,20 +139,41 @@ std::map<std::string, int> ProcessStackTraces(ebpf::BPF *bcc, int target_pid) {
 }
 
 void PrintResults(const std::map<std::string, int> &stack_traces) {
-  for (const auto &[stack_trace, count] : stack_traces) {
-    std::cout << count << " " << stack_trace << std::endl;
+  std::ofstream output_file("profile.out");
+  if (output_file.is_open()) {
+    for (const auto &[stack_trace, count] : stack_traces) {
+      output_file << count << " " << stack_trace << std::endl;
+    }
+    output_file.close();
+  } else {
+    std::cerr << "Unable to open profile.out for writing." << std::endl;
   }
 }
 
 int main(int argc, char **argv) {
+
   // Read arguments to get the target PID to trace.
-  if (argc != 3) {
-    std::cerr << "Usage: " << argv[0]
-              << " <PID to profile> <duration in seconds>" << std::endl;
-    exit(1);
+  // if (argc != 2) {
+  //   std::cerr << "Usage: " << argv[0]
+  //             << "<binary to profile>" << std::endl;
+  //   exit(1);
+  // }
+
+  std::cout << "Starting target process: " << argv[1] << std::endl;
+
+  pid_t target_pid = fork();
+  if (target_pid == 0) {
+    // Child process
+    execl("test.exe", "test.exe", (char *)nullptr);
+    // If exec fails:
+    perror("execl failed");
+    _exit(1);
+  } else if (target_pid > 0) {
+    // Parent process
+    std::cout << "target PID: " << target_pid << "\n";
+  } else {
+    perror("fork failed");
   }
-  int target_pid = std::atoi(argv[1]);
-  int duration_secs = std::atoi(argv[2]);
 
   ebpf::BPF bcc;
 
@@ -163,16 +188,23 @@ int main(int argc, char **argv) {
   RETURN_IF_ERROR(AttachSamplingProbe(&bcc, kProbeFn, kSamplingPeriodMillis));
 
   std::cout << "Successfully deployed BPF profiler." << std::endl;
-  std::cout << "Collecting stack trace samples for " << duration_secs
+  std::cout << "Collecting stack trace samples for " << "5"
             << " seconds." << std::endl;
 
-  // Sleep for some time to allow stack traces to be sampled.
-  sleep(duration_secs);
+  sleep(5); // Collect samples for 5 seconds.
 
   // Now process and print the results.
   std::map<std::string, int> stack_traces =
       ProcessStackTraces(&bcc, target_pid);
+
+      
   PrintResults(stack_traces);
+
+
+  if (target_pid > 0) {
+    // You can decide whether to wait or not
+    waitpid(target_pid, NULL, 0); // blocking
+  }
 
   return 0;
 }
