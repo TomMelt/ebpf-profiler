@@ -18,7 +18,7 @@
 #include <linux/bpf_perf_event.h>
 #include <linux/ptrace.h>
 
-#include "perf_profiler_types.h"
+#include "/software/ebpf-profiler/src/profiler/perf_profiler_types.h"
 
 const int kNumMapEntries = 65536;
 
@@ -26,8 +26,7 @@ BPF_STACK_TRACE(stack_traces, kNumMapEntries);
 
 BPF_HASH(histogram, struct stack_trace_key_t, uint64_t, kNumMapEntries);
 
-int sample_stack_trace(struct bpf_perf_event_data *ctx)
-{
+int sample_stack_trace(struct bpf_perf_event_data *ctx) {
   // Sample the user stack trace, and record in the stack_traces structure.
   int user_stack_id = stack_traces.get_stackid(&ctx->regs, BPF_F_USER_STACK);
 
