@@ -18,7 +18,8 @@
 
 #pragma once
 
-struct stack_trace_key_t {
+struct stack_trace_key_t
+{
   pid_t pid;
 
   // user_stack_id, an index into the stack-traces map.

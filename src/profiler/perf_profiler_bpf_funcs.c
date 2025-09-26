@@ -5,12 +5,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -26,7 +26,8 @@ BPF_STACK_TRACE(stack_traces, kNumMapEntries);
 
 BPF_HASH(histogram, struct stack_trace_key_t, uint64_t, kNumMapEntries);
 
-int sample_stack_trace(struct bpf_perf_event_data* ctx) {
+int sample_stack_trace(struct bpf_perf_event_data *ctx)
+{
   // Sample the user stack trace, and record in the stack_traces structure.
   int user_stack_id = stack_traces.get_stackid(&ctx->regs, BPF_F_USER_STACK);
 
